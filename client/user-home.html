@@ -126,8 +126,6 @@
             document.getElementById("profileName").value = user.name;
             document.getElementById("profileEmail").value = user.email;
 
-            localStorage.setItem("user", JSON.stringify(user));
-
             const viewedKey = `viewed_${user.userId}`;
             viewed = JSON.parse(localStorage.getItem(viewedKey) || "[]");
 
@@ -137,6 +135,63 @@
             readingList = JSON.parse(
               localStorage.getItem(`readingList_${user.userId}`) || "[]"
             );
+
+            renderReadingList();
+
+            // 1️⃣ Show previously viewed books
+            if (viewed.length) {
+              const recentViewed = viewed.slice().reverse().slice(0, 15);
+              Promise.all(
+                recentViewed.map((id) =>
+                  fetch(`https://www.googleapis.com/books/v1/volumes/${id}`)
+                    .then((res) => res.json())
+                    .then((book) => ({
+                      id: book.id,
+                      title: book.volumeInfo.title || "No title",
+                      author: book.volumeInfo.authors?.join(", ") || "Unknown",
+                      genre: book.volumeInfo.categories?.join(", ") || "N/A",
+                      thumbnail:
+                        book.volumeInfo.imageLinks?.thumbnail ||
+                        "https://via.placeholder.com/128x192?text=No+Cover",
+                    }))
+                    .catch(() => null)
+                )
+              ).then((previewBooks) => {
+                const filtered = previewBooks.filter(Boolean);
+                renderBooks("previewed", filtered);
+              });
+            }
+
+            // 2️⃣ Show recommended books based on interests
+            if (interests.length) {
+              const interest =
+                interests[Math.floor(Math.random() * interests.length)];
+
+              fetch(
+                `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
+                  interest
+                )}&maxResults=6&orderBy=relevance`
+              )
+                .then((res) => res.json())
+                .then((data) => {
+                  const recs = data.items || [];
+                  renderBooks(
+                    "recommendedBooks",
+                    recs.map((item) => ({
+                      id: item.id,
+                      title: item.volumeInfo.title || "",
+                      author: item.volumeInfo.authors?.join(", ") || "",
+                      genre: item.volumeInfo.categories?.join(", ") || "",
+                      thumbnail: item.volumeInfo.imageLinks?.thumbnail || "",
+                    }))
+                  );
+                })
+                .catch((err) =>
+                  console.error("Recommendation fetch failed", err)
+                );
+            }
+
+            localStorage.setItem("user", JSON.stringify(user));
 
             renderReadingList(); // now that readingList is set
             // continue with previously viewed, recommendations, etc.
