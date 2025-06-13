@@ -1400,13 +1400,13 @@ body {
   }
 
   .book-card {
-    width: 120px;
+    width: 180px;
     font-size: 0.95rem;
     padding: 0.9rem;
   }
 
   .book-card img {
-    width: 100px;
+    width: 140px;
     height: auto;
   }
 
@@ -1445,5 +1445,21 @@ body.user-home .nav-links li:not(:nth-child(2)) {
 @media (max-width: 768px) {
   .banner {
     background-color: #e0d8c0;
+    background-image: none;
+  }
+}
+
+@media (max-width: 768px) {
+  #searchResults {
+    gap: 1.2rem;
+    padding: 0 1rem;
+  }
+
+  .nav-links li {
+    display: none;
+  }
+
+  .nav-links li.read-list {
+    display: inline-block;
   }
 }
