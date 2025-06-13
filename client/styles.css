@@ -1430,36 +1430,13 @@ body {
     justify-content: center;
     gap: 1rem;
   }
-}
 
-body.user-home .nav-links li:not(:nth-child(2)) {
-  display: none;
-}
-
-@media (max-width: 768px) {
-  body.user-home .nav-links li:not(:nth-child(2)) {
-    display: none;
+  .reading-list-panel {
+    width: 300px;
   }
-}
 
-@media (max-width: 768px) {
   .banner {
     background-color: #e0d8c0;
     background-image: none;
-  }
-}
-
-@media (max-width: 768px) {
-  #searchResults {
-    gap: 1.2rem;
-    padding: 0 1rem;
-  }
-
-  .nav-links li {
-    display: none;
-  }
-
-  .nav-links li.read-list {
-    display: inline-block;
   }
 }
