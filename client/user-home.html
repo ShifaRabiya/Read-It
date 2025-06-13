@@ -93,13 +93,10 @@
       document.addEventListener("DOMContentLoaded", () => {
         const BACKEND_URL = "https://read-it-0krk.onrender.com";
 
-        const token =
-          localStorage.getItem("token") || sessionStorage.getItem("token");
-
-        if (!token) {
-          window.location.href = "login.html";
-          return;
-        }
+        let user;
+        let interests = [];
+        let viewed = [];
+        let readingList = [];
 
         fetch("https://read-it-0krk.onrender.com/api/user/profile", {
           headers: {
@@ -107,32 +104,39 @@
           },
         })
           .then((res) => res.json())
-          .then((user) => {
-            if (!user?.name) {
+          .then((data) => {
+            if (!data?.name) {
               window.location.href = "login.html";
               return;
             }
 
-            // Use fetched user data
+            user = data;
+
             document.getElementById(
               "welcomeMessage"
             ).textContent = `Welcome ${user.name}!`;
             document.getElementById("profileName").value = user.name;
             document.getElementById("profileEmail").value = user.email;
 
-            // store for later use (optional)
             localStorage.setItem("user", JSON.stringify(user));
+
+            const viewedKey = `viewed_${user.userId}`;
+            viewed = JSON.parse(localStorage.getItem(viewedKey) || "[]");
+
+            const interestKey = `interests_${user.userId}`;
+            interests = JSON.parse(localStorage.getItem(interestKey) || "[]");
+
+            readingList = JSON.parse(
+              localStorage.getItem(`readingList_${user.userId}`) || "[]"
+            );
+
+            renderReadingList(); // now that readingList is set
+            // continue with previously viewed, recommendations, etc.
           })
           .catch((err) => {
             console.error("Failed to fetch user profile", err);
             window.location.href = "login.html";
           });
-        let interests = []; // global array of user interests
-        let viewed = [];
-        let readingList = JSON.parse(
-          localStorage.getItem(`readingList_${user.userId}`) || "[]"
-        );
-
         //Reading List
         function saveReadingList() {
           localStorage.setItem(
