@@ -93,9 +93,40 @@
       document.addEventListener("DOMContentLoaded", () => {
         const BACKEND_URL = "https://read-it-0krk.onrender.com";
 
-        let user = JSON.parse(
-          localStorage.getItem("user") || sessionStorage.getItem("user")
-        );
+        const token =
+          localStorage.getItem("token") || sessionStorage.getItem("token");
+
+        if (!token) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        fetch("https://read-it-0krk.onrender.com/api/user/profile", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+          .then((res) => res.json())
+          .then((user) => {
+            if (!user?.name) {
+              window.location.href = "login.html";
+              return;
+            }
+
+            // Use fetched user data
+            document.getElementById(
+              "welcomeMessage"
+            ).textContent = `Welcome ${user.name}!`;
+            document.getElementById("profileName").value = user.name;
+            document.getElementById("profileEmail").value = user.email;
+
+            // store for later use (optional)
+            localStorage.setItem("user", JSON.stringify(user));
+          })
+          .catch((err) => {
+            console.error("Failed to fetch user profile", err);
+            window.location.href = "login.html";
+          });
         let interests = []; // global array of user interests
         let viewed = [];
         let readingList = JSON.parse(
