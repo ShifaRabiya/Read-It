@@ -839,117 +839,6 @@ body {
   }
 }
 
-/*userhome*/
-
-/* General Home Section Styling */
-.user-home-container {
-  max-width: 1200px;
-  margin: 120px auto 60px;
-  padding: 0 2rem;
-}
-
-/* Section Titles */
-.user-home-container section h2 {
-  font-size: 1.8rem;
-  font-weight: 600;
-  margin-bottom: 2rem;
-  font-family: "Poppins", sans-serif;
-  color: #5c4438;
-  border-left: 4px solid #c9a27e;
-  padding-left: 1rem;
-}
-
-/* Welcome Message */
-#welcomeMessage {
-  text-align: center;
-  font-size: 2.5rem;
-  font-family: "Handlee", cursive;
-  color: #5c4438;
-  font-weight: 700;
-  margin-bottom: 3rem;
-}
-
-/* Book Grid Styling */
-.user-book-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-}
-
-/* Book Cards */
-.user-book-grid .book-card {
-  background: #ffffff;
-  border: 1px solid #e0d8c0;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(92, 68, 56, 0.08);
-  transition: all 0.3s ease;
-  text-align: center;
-}
-
-.user-book-grid .book-card:hover {
-  box-shadow: 0 8px 25px rgba(92, 68, 56, 0.12);
-  border-color: #c9a27e;
-}
-
-.user-book-card h4 {
-  font-family: "Poppins", sans-serif;
-  color: #5c4438;
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
-}
-
-.book-card p {
-  color: #7e6653;
-  font-size: 0.95rem;
-  font-family: "Poppins", sans-serif;
-}
-
-/* Profile Form */
-#profileForm {
-  background: #ffffff;
-  border: 1px solid #e0d8c0;
-  border-radius: 12px;
-  padding: 2rem;
-  width: 100%;
-  margin-top: 1rem;
-  box-shadow: 0 2px 8px rgba(92, 68, 56, 0.08);
-}
-
-#profileForm label {
-  display: block;
-  margin-bottom: 1rem;
-  font-weight: 500;
-  color: #5c4438;
-  font-family: "Poppins", sans-serif;
-}
-
-#profileForm input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 1rem;
-  margin-top: 0.25rem;
-  font-family: "Poppins", sans-serif;
-}
-
-#profileForm button {
-  background: #c9a27e;
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s ease;
-  font-family: "Poppins", sans-serif;
-}
-
-#profileForm button:hover {
-  background: #b68b6e;
-}
-
 /*forgot-password*/
 
 .forgot-password-body {
@@ -1161,6 +1050,121 @@ body {
   transform: translateY(0);
 }
 
+/*userhome*/
+
+/* General Home Section Styling */
+.user-home-container {
+  max-width: 1200px;
+  margin: 120px auto 60px;
+  padding: 0 2rem;
+}
+
+.section {
+  padding: 4rem 2rem;
+}
+
+/* Section Titles */
+.user-home-container section h2 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  font-family: "Poppins", sans-serif;
+  color: #5c4438;
+  border-left: 4px solid #c9a27e;
+  padding-left: 1rem;
+}
+
+/* Welcome Message */
+#welcomeMessage {
+  text-align: center;
+  font-size: 2.5rem;
+  font-family: "Handlee", cursive;
+  color: #5c4438;
+  font-weight: 700;
+  margin-bottom: 3rem;
+}
+
+/* Book Grid Styling */
+.user-book-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Book Cards */
+.user-book-grid .book-card {
+  background: #ffffff;
+  border: 1px solid #e0d8c0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(92, 68, 56, 0.08);
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.user-book-grid .book-card:hover {
+  box-shadow: 0 8px 25px rgba(92, 68, 56, 0.12);
+  border-color: #c9a27e;
+}
+
+.user-book-card h4 {
+  font-family: "Poppins", sans-serif;
+  color: #5c4438;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.book-card p {
+  color: #7e6653;
+  font-size: 0.95rem;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Profile Form */
+#profileForm {
+  background: #ffffff;
+  border: 1px solid #e0d8c0;
+  border-radius: 12px;
+  padding: 2rem;
+  width: 100%;
+  margin-top: 1rem;
+  box-shadow: 0 2px 8px rgba(92, 68, 56, 0.08);
+}
+
+#profileForm label {
+  display: block;
+  margin-bottom: 1rem;
+  font-weight: 500;
+  color: #5c4438;
+  font-family: "Poppins", sans-serif;
+}
+
+#profileForm input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  margin-top: 0.25rem;
+  font-family: "Poppins", sans-serif;
+}
+
+#profileForm button {
+  background: #c9a27e;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  font-family: "Poppins", sans-serif;
+}
+
+#profileForm button:hover {
+  background: #b68b6e;
+}
+
 /*userhome search*/
 .book-card {
   border: 1px solid #e0d8c0;
@@ -1359,4 +1363,71 @@ body {
   background: #b68b6e;
   transform: translateY(-1px);
   box-shadow: 0 6px 15px rgba(92, 68, 56, 0.2);
+}
+
+@media (max-width: 768px) {
+  .user-home-container {
+    padding: 1.5rem;
+    margin-top: 90px;
+  }
+
+  .welcome-message {
+    font-size: 1.6rem;
+    text-align: center;
+    margin-bottom: 1.2rem;
+  }
+
+  .search-bar {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .search-bar input[type="text"] {
+    font-size: 1rem;
+    padding: 0.7rem 1rem;
+    width: 100%;
+  }
+
+  .search-bar button {
+    font-size: 1rem;
+    padding: 0.6rem;
+    width: 100%;
+  }
+
+  .section-title {
+    font-size: 1.3rem;
+    margin: 1.5rem 0 0.8rem;
+  }
+
+  .book-card {
+    width: 120px;
+    font-size: 0.95rem;
+    padding: 0.9rem;
+  }
+
+  .book-card img {
+    width: 140px;
+    height: auto;
+  }
+
+  .form-group label,
+  .form-group input {
+    font-size: 0.95rem;
+  }
+
+  .profile-section form {
+    padding: 1rem;
+  }
+
+  .book-grid {
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  #previewed,
+  #recommendedBooks,
+  #searchResults {
+    justify-content: center;
+    gap: 1rem;
+  }
 }
