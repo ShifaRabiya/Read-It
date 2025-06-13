@@ -1360,9 +1360,70 @@ body {
   transform: translateY(-1px);
   box-shadow: 0 6px 15px rgba(92, 68, 56, 0.2);
 }
+
 @media (max-width: 768px) {
   .user-home-container {
-    padding: 0 1.5rem;
-    margin-top: 100px;
+    padding: 1.5rem;
+    margin-top: 90px;
+  }
+
+  .welcome-message {
+    font-size: 1.6rem;
+    text-align: center;
+    margin-bottom: 1.2rem;
+  }
+
+  .search-bar {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .search-bar input[type="text"] {
+    font-size: 1rem;
+    padding: 0.7rem 1rem;
+    width: 100%;
+  }
+
+  .search-bar button {
+    font-size: 1rem;
+    padding: 0.6rem;
+    width: 100%;
+  }
+
+  .section-title {
+    font-size: 1.3rem;
+    margin: 1.5rem 0 0.8rem;
+  }
+
+  .book-card {
+    width: 160px;
+    font-size: 0.95rem;
+    padding: 0.9rem;
+  }
+
+  .book-card img {
+    width: 140px;
+    height: auto;
+  }
+
+  .form-group label,
+  .form-group input {
+    font-size: 0.95rem;
+  }
+
+  .profile-section form {
+    padding: 1rem;
+  }
+
+  .book-grid {
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  #previewed,
+  #recommendedBooks,
+  #searchResults {
+    justify-content: center;
+    gap: 1rem;
   }
 }
