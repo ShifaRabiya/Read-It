@@ -82,7 +82,7 @@
       </div>
 
       <section id="profile">
-        <h2>👤 Profile Settings</h2>
+        <h2>Profile Settings</h2>
         <form id="profileForm">
           <label>Name: <input type="text" id="profileName" /></label><br />
           <label>Email: <input type="email" id="profileEmail" /></label><br />
@@ -126,6 +126,51 @@
             ).textContent = `Welcome ${user.name}!`;
             document.getElementById("profileName").value = user.name;
             document.getElementById("profileEmail").value = user.email;
+
+            document
+              .getElementById("profileForm")
+              .addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const updatedName =
+                  document.getElementById("profileName").value;
+                const updatedEmail =
+                  document.getElementById("profileEmail").value;
+
+                try {
+                  const res = await fetch(`${BACKEND_URL}/api/update-profile`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      userId: user.userId,
+                      name: updatedName,
+                      email: updatedEmail,
+                    }),
+                  });
+
+                  const data = await res.json();
+                  if (res.ok) {
+                    user.name = data.name;
+                    user.email = data.email;
+
+                    if (localStorage.getItem("user")) {
+                      localStorage.setItem("user", JSON.stringify(user));
+                    } else {
+                      sessionStorage.setItem("user", JSON.stringify(user));
+                    }
+
+                    document.getElementById(
+                      "welcomeMessage"
+                    ).textContent = `Welcome ${data.name}!`;
+
+                    alert("Profile updated successfully!");
+                  } else {
+                    alert(data.message || "Name update failed.");
+                  }
+                } catch (err) {
+                  console.error("Update failed:", err);
+                  alert("Something went wrong while updating.");
+                }
+              });
 
             const viewedKey = `viewed_${user.userId}`;
             viewed = JSON.parse(localStorage.getItem(viewedKey) || "[]");
@@ -477,45 +522,6 @@
           const filtered = bookData.filter(Boolean);
           renderBooks("readingListContainer", filtered); // ✅ Corrected ID
         }
-
-        // Profile update handler
-        document
-          .getElementById("profileForm")
-          .addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const updatedName = document.getElementById("profileName").value;
-            const updatedEmail = document.getElementById("profileEmail").value;
-            try {
-              const res = await fetch(`${BACKEND_URL}/api/update-profile`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  userId: user.userId,
-                  name: updatedName,
-                  email: updatedEmail,
-                }),
-              });
-              const data = await res.json();
-              if (res.ok) {
-                user.name = data.name;
-                user.email = data.email;
-                if (localStorage.getItem("user")) {
-                  localStorage.setItem("user", JSON.stringify(user));
-                } else {
-                  sessionStorage.setItem("user", JSON.stringify(user));
-                }
-                document.getElementById(
-                  "welcomeMessage"
-                ).textContent = `Welcome ${data.name}!`;
-                alert("Profile updated successfully!");
-              } else {
-                alert(data.message || "Name update failed.");
-              }
-            } catch (err) {
-              console.error("Update failed:", err);
-              alert("Something went wrong while updating.");
-            }
-          });
       }); // end DOMContentLoaded
     </script>
   </body>
