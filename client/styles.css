@@ -1406,7 +1406,7 @@ body {
   }
 
   .book-card img {
-    width: 140px;
+    width: 100px;
     height: auto;
   }
 
@@ -1429,5 +1429,21 @@ body {
   #searchResults {
     justify-content: center;
     gap: 1rem;
+  }
+}
+
+body.user-home .nav-links li:not(:nth-child(2)) {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  body.user-home .nav-links li:not(:nth-child(2)) {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .banner {
+    background-color: #e0d8c0;
   }
 }
