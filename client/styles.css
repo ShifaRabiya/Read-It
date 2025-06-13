@@ -1360,3 +1360,47 @@ body {
   transform: translateY(-1px);
   box-shadow: 0 6px 15px rgba(92, 68, 56, 0.2);
 }
+
+@media (max-width: 600px) {
+  #welcomeMessage {
+    font-size: 2.2rem; /* was 1.8rem — now a better in-between */
+    margin-bottom: 1.5rem;
+    padding: 0 1rem;
+    text-align: center;
+  }
+
+  .user-home-container {
+    padding: 0 1.5rem;
+    margin-top: 80px; /* less cramped */
+  }
+
+  #profileForm {
+    padding: 1rem;
+  }
+
+  #profileForm input {
+    font-size: 1rem; /* back up from 0.9 */
+    padding: 0.7rem;
+  }
+
+  #profileForm button {
+    width: 100%;
+    margin-top: 1rem;
+    font-size: 1rem;
+  }
+
+  .user-book-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.2rem;
+  }
+
+  .book-card {
+    max-width: 100%;
+    padding: 1rem;
+  }
+
+  .nav-container {
+    justify-content: space-between; /* logo left, no collapse yet */
+    padding: 1rem;
+  }
+}

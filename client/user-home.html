@@ -145,6 +145,18 @@
             console.error("Failed to fetch user profile", err);
             window.location.href = "login.html";
           });
+
+        function recordView(id) {
+          const viewedKey = `viewed_${user.userId}`;
+          const index = viewed.indexOf(id);
+          if (index !== -1) {
+            viewed.splice(index, 1); // remove old
+          }
+          viewed.unshift(id); // add to front
+          if (viewed.length > 50) viewed = viewed.slice(0, 50); // optional limit
+          localStorage.setItem(viewedKey, JSON.stringify(viewed));
+        }
+
         //Reading List
         function saveReadingList() {
           localStorage.setItem(
