@@ -98,6 +98,14 @@
         let viewed = [];
         let readingList = [];
 
+        const token =
+          localStorage.getItem("token") || sessionStorage.getItem("token");
+
+        if (!token) {
+          window.location.href = "login.html";
+          return;
+        }
+
         fetch("https://read-it-0krk.onrender.com/api/user/profile", {
           headers: {
             Authorization: `Bearer ${token}`,
