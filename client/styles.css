@@ -338,6 +338,13 @@ body {
     right: -20px;
   }
 
+  .carousel-wrapper {
+    overflow-x: hidden;
+    padding: 0;
+    margin: 0 auto;
+    width: 100%;
+  }
+
   .categories-grid {
     grid-template-columns: 1fr;
   }
@@ -1419,14 +1426,33 @@ body {
     padding: 1rem;
   }
 
-  .book-grid {
-    justify-content: center;
-    gap: 1rem;
+  .carousel-container {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 1rem; /* Ensure first card isn't cut */
+    padding-left: 1rem;
+    padding-right: 1rem;
+    gap: 12px;
   }
 
-  #previewed,
-  #recommendedBooks,
-  #searchResults {
+  .carousel-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .carousel-container {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .carousel-wrapper {
+    overflow-x: hidden;
+    padding: 0;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .book-grid {
     justify-content: center;
     gap: 1rem;
   }
