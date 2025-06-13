@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&family=Dancing+Script:wght@400..700&family=Great+Vibes&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Quicksand:wght@300..700&family=Satisfy&family=Sevillana&display=swap"
+      rel="stylesheet"
+    />
+    <title>Login - Read-It</title>
+  </head>
+  <body class="inupbody">
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="logo">Read-It</div>
+        <a href="login.html" class="nav-sign">Login</a>
+      </div>
+    </nav>
+
+    <!-- Login Container -->
+    <div class="container fade-in">
+      <div class="header">
+        <h1 class="title">Welcome Back</h1>
+        <p class="subtitle">Please sign in to your account</p>
+      </div>
+
+      <!-- Message Display -->
+      <div id="message" class="message"></div>
+
+      <form class="form" id="loginForm">
+        <div class="form-group">
+          <label for="email" class="form-label">Email Address</label>
+          <input
+            type="email"
+            id="email"
+            class="form-input"
+            placeholder="Enter your email"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label">Password</label>
+          <input
+            type="password"
+            id="password"
+            class="form-input"
+            placeholder="Enter your password"
+            required
+          />
+        </div>
+
+        <div class="form-options">
+          <label class="remember-me">
+            <input type="checkbox" id="remember" />
+            Remember me
+          </label>
+          <a href="forgot-password.html" class="forgot-password"
+            >Forgot Password?</a
+          >
+        </div>
+
+        <button type="submit" class="butn" id="loginBtn">Sign In</button>
+      </form>
+
+      <div class="signup-link">
+        <p>Don't have an account?</p>
+        <a href="signup.html">Create an account</a>
+      </div>
+    </div>
+
+    <script>
+      const loginForm = document.getElementById("loginForm");
+      const loginBtn = document.getElementById("loginBtn");
+      const messageDiv = document.getElementById("message");
+
+      function showMessage(text, type) {
+        messageDiv.textContent = text;
+        messageDiv.className = `message ${type} show`;
+        setTimeout(() => {
+          messageDiv.classList.remove("show");
+        }, 5000);
+      }
+
+      function setLoading(isLoading) {
+        if (isLoading) {
+          loginBtn.innerHTML = '<span class="loading"></span> Signing In...';
+          loginBtn.disabled = true;
+        } else {
+          loginBtn.innerHTML = "Sign In";
+          loginBtn.disabled = false;
+        }
+      }
+
+      loginForm.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        if (!email || !password) {
+          showMessage("Please fill in all fields", "error");
+          return;
+        }
+
+        if (!email.includes("@")) {
+          showMessage("Please enter a valid email address", "error");
+          return;
+        }
+
+        if (password.length < 6) {
+          showMessage("Password must be at least 6 characters long", "error");
+          return;
+        }
+
+        setLoading(true);
+
+        try {
+          const response = await fetch("http://localhost:5000/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+          });
+
+          const data = await response.json();
+          console.log("Login API response:", data);
+
+          if (!response.ok) {
+            showMessage(data.message || "Login failed", "error");
+          } else {
+            showMessage("Login successful! Redirecting...", "success");
+
+            const userData = {
+              name: data.name,
+              email: data.email,
+              token: data.token,
+              userId: data.userId,
+            };
+
+            const remember = document.getElementById("remember").checked;
+            if (remember) {
+              localStorage.setItem("user", JSON.stringify(userData));
+              localStorage.setItem("token", data.token); // <== store token separately
+            } else {
+              sessionStorage.setItem("user", JSON.stringify(userData));
+              sessionStorage.setItem("token", data.token); // <== store token separately
+            }
+            console.log(
+              "Saved user:",
+              localStorage.getItem("user") || sessionStorage.getItem("user")
+            );
+            console.log(
+              "Saved token:",
+              localStorage.getItem("token") || sessionStorage.getItem("token")
+            );
+
+            setTimeout(() => {
+              window.location.href = "user-home.html"; // Update with your actual page
+            }, 1500);
+          }
+        } catch (err) {
+          showMessage("Something went wrong. Please try again.", "error");
+        } finally {
+          setLoading(false);
+        }
+      });
+
+      // Input focus animations (unchanged)
+      const inputs = document.querySelectorAll(".form-input");
+      inputs.forEach((input) => {
+        input.addEventListener("focus", function () {
+          this.parentElement.classList.add("focused");
+        });
+
+        input.addEventListener("blur", function () {
+          this.parentElement.classList.remove("focused");
+        });
+      });
+
+      // Entrance animation delay (unchanged)
+      setTimeout(() => {
+        document.querySelector(".login-container").style.animationDelay =
+          "0.2s";
+      }, 100);
+
+      (async () => {
+        const token =
+          localStorage.getItem("token") || sessionStorage.getItem("token");
+
+        if (token) {
+          try {
+            const response = await fetch(
+              "http://localhost:5000/api/user/profile",
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+
+            if (!response.ok) {
+              console.log("Failed to fetch profile: ", await response.text());
+              return;
+            }
+
+            const user = await response.json();
+            console.log("User profile:", user);
+            // You can now use this user info to personalize the UI
+          } catch (err) {
+            console.error("Error fetching profile:", err);
+          }
+        } else {
+          console.log("No token found. User is not logged in.");
+        }
+      })();
+
+      // Use user info & favorites to personalize UI
+    </script>
+  </body>
+</html>

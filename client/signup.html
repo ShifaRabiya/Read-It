@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&family=Dancing+Script:wght@400..700&family=Great+Vibes&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Quicksand:wght@300..700&family=Satisfy&family=Sevillana&display=swap"
+      rel="stylesheet"
+    />
+    <title>Signup - Read-It</title>
+</head>
+<body class="inupbody">
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">Read-It</div>
+            <a href="login.html" class="nav-sign">Back to Login</a>
+        </div>
+    </nav>
+
+    <!-- Login Container -->
+    <div class="container fade-in">
+        <div class="header">
+            <h1 class="signup-title">Create New Account</h1>
+        </div>
+
+        <!-- Message Display -->
+        <div id="message-signup" class="message"></div>
+
+        <form class="form" id="signupForm">
+            <div class="form-group">
+                <label for="name" class="form-label">Username</label>
+                <input 
+                    type="name" 
+                    id="name" 
+                    class="form-input" 
+                    placeholder="Enter username"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    class="form-input" 
+                    placeholder="Enter your email"
+                    required
+                >
+            </div>
+
+            <div class="group">
+                <label for="password" class="form-label">Password</label>
+                <div class="password-group-signup">
+                    <input 
+                        type="password" 
+                        id="password" 
+                        class="form-input" 
+                        placeholder="Enter your password"
+                        required
+                    >
+                </div>
+            </div>
+
+            <button type="submit" class="butn" id="signupBtn">
+                Sign-Up
+            </button>
+        </form>
+
+    <script>
+    const signupForm = document.getElementById('signupForm');
+    const signupBtn = document.getElementById('signupBtn');
+    const messageDiv = document.getElementById('message-signup');
+
+    function showMessage(text, type) {
+        messageDiv.textContent = text;
+        messageDiv.className = `message ${type} show`;
+        setTimeout(() => {
+            messageDiv.classList.remove('show');
+        }, 5000);
+    }
+
+    function setLoading(isLoading) {
+        if (isLoading) {
+            signupBtn.innerHTML = '<span class="loading"></span> Signing Up...';
+            signupBtn.disabled = true;
+        } else {
+            signupBtn.innerHTML = 'Sign-Up';
+            signupBtn.disabled = false;
+        }
+    }
+
+    signupForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        // Validation
+        if (!name || !email || !password) {
+            showMessage('Please fill in all fields', 'error');
+            return;
+        }
+
+        if (!email.includes('@')) {
+            showMessage('Please enter a valid email address', 'error');
+            return;
+        }
+
+        if (password.length < 6) {
+            showMessage('Password must be at least 6 characters long', 'error');
+            return;
+        }
+
+        // Real signup request
+        setLoading(true);
+        try {
+            const res = await fetch('http://localhost:5000/api/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password })
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                showMessage('Account created successfully!', 'success');
+                signupForm.reset();
+                setTimeout(() => {
+                    window.location.href = 'login.html'; // Update with your actual page
+                }, 1500);
+            } else {
+                showMessage(data.message || 'Signup failed', 'error');
+            }
+        } catch (err) {
+            showMessage('Error: Could not connect to server', 'error');
+        }
+
+        setLoading(false);
+    });
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&family=Dancing+Script:wght@400..700&family=Great+Vibes&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Quicksand:wght@300..700&family=Satisfy&family=Sevillana&display=swap"
+      rel="stylesheet"
+    />
+    <title>Read-It</title>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="logo">Read-It</div>
+        <ul class="nav-links">
+          <li><a href="#home">Home</a></li>
+          <li><a href="#books">Books</a></li>
+          <li><a href="#genres">Genres</a></li>
+          <li><a href="#about">About</a></li>
+        </ul>
+        <a href="login.html" class="nav-sign">Login</a>
+      </div>
+    </nav>
+
+    <section class="banner" id="home">
+      <div class="banner-container">
+        <h1 class="banner-title">Find your next Read !</h1>
+        <p class="banner-subtitle">
+          Discover books curated to your interest to make your reading journey
+          fun.
+        </p>
+      </div>
+    </section>
+
+    <section class="featured-books">
+      <div class="carousel-wrapper">
+        <section id="books">
+          <h2>Featured Books</h2>
+          <div class="carousel-container" id="featured-books-wrapper">
+            <!-- Book slides inserted dynamically -->
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="section genres" id="genres">
+      <h2 class="genre">Explore Genres</h2>
+      <div class="genre-grid">
+        <div
+          class="genre-card active"
+          data-genre="Fantasy"
+          style="background-image: url('img/4.png')"
+        >
+          <div class="genre-overlay">Fantasy</div>
+        </div>
+        <div
+          class="genre-card"
+          data-genre="Romance"
+          style="background-image: url('img/1.png')"
+        >
+          <div class="genre-overlay">Romance</div>
+        </div>
+        <div
+          class="genre-card"
+          data-genre="Mystery"
+          style="background-image: url('img/5.png')"
+        >
+          <div class="genre-overlay">Mystery</div>
+        </div>
+        <div
+          class="genre-card"
+          data-genre="Horror"
+          style="background-image: url('img/2.png')"
+        >
+          <div class="genre-overlay">Horror</div>
+        </div>
+        <div
+          class="genre-card"
+          data-genre="Fiction"
+          style="background-image: url('img/3.png')"
+        >
+          <div class="genre-overlay">Fiction</div>
+        </div>
+      </div>
+      <div class="genre-results" id="genreResults"></div>
+    </section>
+
+    <!-- Final CTA Section -->
+    <section class="section final-cta" id="about">
+      <div class="cta-container">
+        <div class="cta-content fade-in">
+          <h2>Ready to Discover Your Next Great Read?</h2>
+          <p>Start exploring with Read-It today.</p>
+          <div class="cta-buttons">
+            <a href="signup.html" class="btn btn-primary">Get Started Now</a>
+          </div>
+        </div>
+      </div>
+    </section>
+    <script>
+      // Smooth scrolling
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute("href"));
+          if (target) {
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        });
+      });
+
+      // Fade-in animation
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("visible");
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+
+      document
+        .querySelectorAll(".fade-in")
+        .forEach((el) => observer.observe(el));
+
+      // Featured books fetch
+      const featuredWrapper = document.getElementById("featured-books-wrapper");
+
+      fetch(
+        "https://www.googleapis.com/books/v1/volumes?q=bestsellers&maxResults=10"
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          if (!data.items) return;
+          data.items.forEach((book) => {
+            const info = book.volumeInfo;
+            const card = document.createElement("div");
+            card.className = "book-card";
+            card.innerHTML = `
+            <img class="book-cover" src="${
+              info.imageLinks?.thumbnail ||
+              "https://via.placeholder.com/128x195?text=No+Cover"
+            }" alt="Book cover" />
+            <h3 class="book-title">${info.title || "Untitled"}</h3>
+            <p class="book-author">by ${
+              info.authors?.[0] || "Unknown Author"
+            }</p>
+            <div class="book-rating">Rating: ${
+              info.averageRating || "⭐️⭐️⭐️⭐️"
+            }</div>
+            <span class="book-genre">${
+              info.categories?.[0] || "Unknown Genre"
+            }</span>
+          `;
+            featuredWrapper.appendChild(card);
+          });
+        });
+
+      const genreCards = document.querySelectorAll(".genre-card");
+      const resultsContainer = document.getElementById("genreResults");
+
+      genreCards.forEach((card) => {
+        card.addEventListener("click", (e) => {
+          // Remove active from all cards
+          genreCards.forEach((c) => c.classList.remove("active"));
+
+          // Add active to clicked card
+          card.classList.add("active");
+
+          const genre = card.dataset.genre;
+          resultsContainer.innerHTML = `<p>Loading ${genre} books...</p>`;
+
+          // Fetch books for selected genre
+          fetch(
+            `https://www.googleapis.com/books/v1/volumes?q=subject:${genre}&maxResults=10`
+          )
+            .then((res) => res.json())
+            .then((data) => {
+              resultsContainer.innerHTML = "";
+              if (!data.items) {
+                resultsContainer.innerHTML = `<p>No books found for ${genre}.</p>`;
+                return;
+              }
+
+              data.items.forEach((book) => {
+                const info = book.volumeInfo;
+                const bookCard = document.createElement("div");
+                bookCard.className = "genre-book-card";
+                bookCard.innerHTML = `
+                <img src="${
+                  info.imageLinks?.thumbnail ||
+                  "https://via.placeholder.com/128x195"
+                }" />
+                <h4>${info.title}</h4>
+                <p>${info.authors?.[0] || "Unknown Author"}</p>
+            `;
+                resultsContainer.appendChild(bookCard);
+              });
+            });
+        });
+      });
+    </script>
+  </body>
+</html>

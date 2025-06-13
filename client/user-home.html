@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Welcome to Read-It</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&family=Dancing+Script:wght@400..700&family=Delius&family=Great+Vibes&family=Handlee&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Quicksand:wght@300..700&family=Satisfy&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="home-body">
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="logo">Read-It</div>
+        <ul class="nav-links">
+          <li><a href="#recommended">Recommended</a></li>
+          <li><a href="#preview">Previously Viewed</a></li>
+          <li><a href="#profile">Profile</a></li>
+          <button id="readingListBtn" class="reading-list-btn">
+            Read List
+          </button>
+        </ul>
+      </div>
+    </nav>
+
+    <div id="readingListPanel" class="reading-list-panel" style="display: none">
+      <h3>Your To Read List</h3>
+      <div id="readingListContainer" class="user-book-grid">
+        <!-- Filled dynamically -->
+      </div>
+    </div>
+
+    <div class="user-home-container">
+      <h1 id="welcomeMessage">Welcome!</h1>
+
+      <div class="search-container">
+        <div class="search-bar">
+          <input
+            type="text"
+            class="search-input"
+            id="searchInput"
+            placeholder="Search for books, authors, or genres..."
+          />
+          <button class="search-btn" id="searchBtn">Search</button>
+        </div>
+      </div>
+
+      <div id="loadingSpinner" style="display: none; text-align: center">
+        <div class="spinner"></div>
+      </div>
+      <div id="searchResults" class="user-book-grid"></div>
+
+      <!-- Book Details Modal -->
+      <div id="bookModal" class="modal" style="display: none">
+        <div class="modal-content">
+          <span id="modalClose" class="close">&times;</span>
+          <div id="modalBody">Loading...</div>
+        </div>
+      </div>
+
+      <div class="carousel-wrapper">
+        <section id="recommended">
+          <h2>Recommended for You</h2>
+          <div class="carousel-container" id="recommendedBooks">
+            <!-- Dynamically filled -->
+          </div>
+        </section>
+      </div>
+
+      <div class="carousel-wrapper">
+        <section id="preview">
+          <h2>Previously Viewed</h2>
+          <div class="carousel-container" id="previewed">
+            <!-- Dynamically filled -->
+          </div>
+          <button id="clearHistoryBtn" class="clear-history-btn">
+            Clear History
+          </button>
+        </section>
+      </div>
+
+      <section id="profile">
+        <h2>👤 Profile Settings</h2>
+        <form id="profileForm">
+          <label>Name: <input type="text" id="profileName" /></label><br />
+          <label>Email: <input type="email" id="profileEmail" /></label><br />
+          <div class="formBtn"><button type="submit">Update</button></div>
+        </form>
+      </section>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const BACKEND_URL = "http://localhost:5000";
+
+        let user = JSON.parse(
+          sessionStorage.getItem("user") || localStorage.getItem("user")
+        );
+        let interests = []; // global array of user interests
+        let viewed = [];
+        let readingList = JSON.parse(
+          localStorage.getItem(`readingList_${user.userId}`) || "[]"
+        );
+
+        //Reading List
+        function saveReadingList() {
+          localStorage.setItem(
+            `readingList_${user.userId}`,
+            JSON.stringify(readingList)
+          );
+        }
+
+        // Define Interests
+        function saveInterests() {
+          const key = `interests_${user.userId}`;
+          localStorage.setItem(key, JSON.stringify(interests));
+        }
+
+        // Set welcome message if user is logged in
+        if (user?.name) {
+          document.getElementById(
+            "welcomeMessage"
+          ).textContent = `Welcome ${user.name}!`;
+          document.getElementById("profileName").value = user.name;
+          document.getElementById("profileEmail").value = user.email;
+
+          renderReadingList();
+
+          const viewedKey = `viewed_${user.userId}`;
+          viewed = JSON.parse(localStorage.getItem(viewedKey) || "[]");
+
+          const interestKey = `interests_${user.userId}`;
+          interests = JSON.parse(localStorage.getItem(interestKey) || "[]");
+
+          // Set up viewed history & function globally (accessible everywhere)
+          function recordView(id) {
+            const index = viewed.indexOf(id);
+            if (index !== -1) {
+              viewed.splice(index, 1); // remove from old position
+            }
+            viewed.unshift(id); // add to the front (most recent first)
+            const viewedKey = `viewed_${user.userId}`;
+            localStorage.setItem(viewedKey, JSON.stringify(viewed));
+            if (viewed.length > 50) viewed = viewed.slice(0, 50); // optional limit
+          }
+
+          // Fetch and show previously viewed books
+          if (viewed.length) {
+            const recentViewed = viewed.slice().reverse().slice(0, 15);
+            Promise.all(
+              viewed.map(
+                (id) =>
+                  fetch(`https://www.googleapis.com/books/v1/volumes/${id}`)
+                    .then((res) => res.json())
+                    .then((book) => ({
+                      id: book.id,
+                      title: book.volumeInfo.title || "No title",
+                      author: book.volumeInfo.authors?.join(", ") || "Unknown",
+                      genre: book.volumeInfo.categories?.join(", ") || "N/A",
+                      thumbnail:
+                        book.volumeInfo.imageLinks?.thumbnail ||
+                        "https://via.placeholder.com/128x192?text=No+Cover",
+                    }))
+                    .catch((err) => null) // Skip errors silently
+              )
+            ).then((previewBooks) => {
+              const filtered = previewBooks.filter(Boolean); // remove nulls
+              renderBooks("previewed", filtered);
+            });
+          }
+
+          if (interests.length) {
+            const interest =
+              interests[Math.floor(Math.random() * interests.length)];
+            fetch(
+              `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
+                interest
+              )}&maxResults=6&orderBy=relevance`
+            )
+              .then((res) => res.json())
+              .then((data) => {
+                const recs = data.items || [];
+                renderBooks(
+                  "recommendedBooks",
+                  recs.map((item) => ({
+                    id: item.id,
+                    title: item.volumeInfo.title || "",
+                    author: item.volumeInfo.authors?.join(", ") || "",
+                    genre: item.volumeInfo.categories?.join(", ") || "",
+                    thumbnail: item.volumeInfo.imageLinks?.thumbnail || "",
+                  }))
+                );
+              })
+              .catch((err) => console.error("Rec on load failed", err));
+          }
+        }
+
+        //clear history prev viewed
+        document
+          .getElementById("clearHistoryBtn")
+          .addEventListener("click", () => {
+            const viewedKey = `viewed_${user.userId}`;
+            localStorage.removeItem(viewedKey);
+            viewed = [];
+            document.getElementById("previewed").innerHTML =
+              "<p>No previously viewed books.</p>";
+          });
+
+        // Toggle To Read List Panel
+        document
+          .getElementById("readingListBtn")
+          .addEventListener("click", async () => {
+            const panel = document.getElementById("readingListPanel");
+            if (panel.style.display === "none") {
+              await renderReadingList(); // Fill it fresh
+              panel.style.display = "block";
+            } else {
+              panel.style.display = "none";
+            }
+          });
+
+        // Render books without favorites option
+        function renderBooks(sectionId, books) {
+          let currentSearchResults = [];
+          const section = document.getElementById(sectionId);
+          section.innerHTML = books
+            .map(
+              (book) => `
+            <div class="book-card" data-id="${book.id}">
+                <img src="${book.thumbnail}" alt="${
+                book.title
+              }" class="book-cover" />
+                <h4>${book.title}</h4>
+                <p>${
+                  Array.isArray(book.author) ? book.author[0] : book.author
+                }</p>
+                <p>${book.genre}</p>
+                <button class="add-to-reading-list">Add to Read-List</button>
+            </div>
+            `
+            )
+            .join("");
+        }
+
+        // Search logic
+        async function searchBooks() {
+          const query = document.getElementById("searchInput").value.trim();
+          if (!query) return;
+
+          const spinner = document.getElementById("loadingSpinner");
+          spinner.innerHTML = '<div class="spinner"></div>';
+          spinner.style.display = "block";
+          document.getElementById("searchResults").innerHTML = "";
+
+          try {
+            const res = await fetch(
+              `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
+                query
+              )}`
+            );
+            const data = await res.json();
+            spinner.style.display = "none";
+
+            if (data.items?.length) {
+              const books = data.items.slice(0, 10).map((item) => ({
+                id: item.id,
+                title: item.volumeInfo.title || "No title",
+                author: item.volumeInfo.authors?.join(", ") || "Unknown Author",
+                genre: item.volumeInfo.categories?.join(", ") || "N/A",
+                thumbnail:
+                  item.volumeInfo.imageLinks?.thumbnail ||
+                  "https://via.placeholder.com/128x192?text=No+Cover",
+              }));
+              renderBooks("searchResults", books);
+            } else {
+              document.getElementById("searchResults").innerHTML =
+                "<p>No results found.</p>";
+            }
+          } catch (err) {
+            console.error("Search error:", err);
+            alert("Failed to fetch results. Please try again.");
+          }
+        }
+
+        // Event listeners
+        document
+          .getElementById("searchBtn")
+          .addEventListener("click", searchBooks);
+        document
+          .getElementById("searchInput")
+          .addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              searchBooks();
+            }
+          });
+
+        //Books click
+        document.body.addEventListener("click", async (e) => {
+          //reading list button
+          if (e.target.classList.contains("add-to-reading-list")) {
+            e.stopPropagation();
+            const card = e.target.closest(".book-card");
+            const bookId = card.dataset.id;
+
+            if (!readingList.includes(bookId)) {
+              readingList.push(bookId);
+              saveReadingList();
+              alert("Book added to your reading list!");
+            } else {
+              alert("Book is already in your reading list.");
+            }
+            return;
+          }
+
+          const card = e.target.closest(".book-card");
+          if (!card) return;
+          const bookId = card.dataset.id;
+          if (!bookId) return;
+
+          recordView(bookId);
+
+          const modal = document.getElementById("bookModal");
+          const body = document.getElementById("modalBody");
+          modal.style.display = "block";
+          body.innerHTML = '<div class="spinner"></div>';
+
+          try {
+            const res = await fetch(
+              `https://www.googleapis.com/books/v1/volumes/${bookId}`
+            );
+            const book = await res.json();
+
+            // 1️⃣ Show book details
+            body.innerHTML = `
+            <h2>${book.volumeInfo.title}</h2>
+            <p><strong>Authors:</strong> ${
+              book.volumeInfo.authors?.join(", ") || "Unknown"
+            }</p>
+            <p><strong>Publisher:</strong> ${
+              book.volumeInfo.publisher || "N/A"
+            }</p>
+            <p><strong>Published Date:</strong> ${
+              book.volumeInfo.publishedDate || "N/A"
+            }</p>
+            <p><strong>Dsescription:</strong> ${
+              book.volumeInfo.description || "No description."
+            }</p>
+            <p><strong>Page Count:</strong> ${
+              book.volumeInfo.pageCount || "N/A"
+            }</p>
+            <p><strong>Categories:</strong> ${
+              book.volumeInfo.categories?.join(", ") || "N/A"
+            }</p>
+            <p><strong>Average Rating:</strong> ${
+              book.volumeInfo.averageRating || "N/A"
+            }</p>
+            <p><strong>Ratings Count:</strong> ${
+              book.volumeInfo.ratingsCount || "N/A"
+            }</p>
+            <img src="${book.volumeInfo.imageLinks?.thumbnail || ""}" alt="${
+              book.volumeInfo.title
+            }" />
+            `;
+
+            // 2️⃣ Update interests AFTER fetch
+            const { authors, categories, title } = book.volumeInfo;
+            if (title?.[0] && !interests.includes(title[0])) {
+              interests.push(title[0]);
+              saveInterests();
+            } else if (authors?.[0] && !interests.includes(authors[0])) {
+              interests.push(authors[0]);
+              saveInterests();
+            } else if (categories?.[0] && !interests.includes(categories[0])) {
+              interests.push(categories[0]);
+              saveInterests();
+            }
+
+            // 3️⃣ Fetch and render recommendations
+            let recQuery = "";
+            if (categories?.[0]) {
+              recQuery = `subject:${categories[0]}`;
+            } else if (authors?.[0]) {
+              recQuery = `inauthor:${authors[0]}`;
+            } else if (title) {
+              recQuery = `intitle:${title}`;
+            }
+
+            if (recQuery) {
+              const recRes = await fetch(
+                `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
+                  recQuery
+                )}&maxResults=5&orderBy=relevance`
+              );
+              const recJson = await recRes.json();
+              const recItems = recJson.items || [];
+              renderBooks(
+                "recommendedBooks",
+                recItems.map((item) => ({
+                  id: item.id,
+                  title: item.volumeInfo.title,
+                  author: item.volumeInfo.authors?.join(", ") || "Unknown",
+                  genre: item.volumeInfo.categories?.join(", ") || "N/A",
+                  thumbnail:
+                    item.volumeInfo.imageLinks?.thumbnail ||
+                    "https://via.placeholder.com/128x192?text=No+Cover",
+                }))
+              );
+            }
+          } catch (err) {
+            body.innerHTML = "<p>Error loading book details.</p>";
+            console.error(err);
+          }
+        });
+
+        // Modal close handlers
+        document.getElementById("modalClose").addEventListener("click", () => {
+          document.getElementById("bookModal").style.display = "none";
+        });
+        window.addEventListener("click", (e) => {
+          if (e.target === document.getElementById("bookModal")) {
+            e.target.style.display = "none";
+          }
+        });
+
+        //read list
+        async function renderReadingList() {
+          const bookData = await Promise.all(
+            readingList.map((id) =>
+              fetch(`https://www.googleapis.com/books/v1/volumes/${id}`)
+                .then((res) => res.json())
+                .then((book) => ({
+                  id: book.id,
+                  title: book.volumeInfo.title || "No title",
+                  author: book.volumeInfo.authors?.join(", ") || "Unknown",
+                  genre: book.volumeInfo.categories?.join(", ") || "N/A",
+                  thumbnail:
+                    book.volumeInfo.imageLinks?.thumbnail ||
+                    "https://via.placeholder.com/128x192?text=No+Cover",
+                }))
+                .catch(() => null)
+            )
+          );
+
+          const filtered = bookData.filter(Boolean);
+          renderBooks("readingListContainer", filtered); // ✅ Corrected ID
+        }
+
+        // Profile update handler
+        document
+          .getElementById("profileForm")
+          .addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const updatedName = document.getElementById("profileName").value;
+            const updatedEmail = document.getElementById("profileEmail").value;
+            try {
+              const res = await fetch(`${BACKEND_URL}/api/update-profile`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  userId: user.userId,
+                  name: updatedName,
+                  email: updatedEmail,
+                }),
+              });
+              const data = await res.json();
+              if (res.ok) {
+                user.name = data.name;
+                user.email = data.email;
+                if (localStorage.getItem("user")) {
+                  localStorage.setItem("user", JSON.stringify(user));
+                } else {
+                  sessionStorage.setItem("user", JSON.stringify(user));
+                }
+                document.getElementById(
+                  "welcomeMessage"
+                ).textContent = `Welcome ${data.name}!`;
+                alert("Profile updated successfully!");
+              } else {
+                alert(data.message || "Name update failed.");
+              }
+            } catch (err) {
+              console.error("Update failed:", err);
+              alert("Something went wrong while updating.");
+            }
+          });
+      }); // end DOMContentLoaded
+    </script>
+  </body>
+</html>
