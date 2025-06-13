@@ -186,7 +186,7 @@
 
             // 1️⃣ Show previously viewed books
             if (viewed.length) {
-              const recentViewed = viewed.slice().reverse().slice(0, 15);
+              const recentViewed = viewed.slice(0, 15);
               Promise.all(
                 recentViewed.map((id) =>
                   fetch(`https://www.googleapis.com/books/v1/volumes/${id}`)
