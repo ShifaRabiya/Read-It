@@ -120,7 +120,6 @@
             }
 
             user = data;
-            console.log("Fetched user:", user);
 
             document.getElementById(
               "welcomeMessage"
@@ -142,7 +141,7 @@
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                      userId: user.userId,
+                      userId: user.userId || user._id,
                       name: updatedName,
                       email: updatedEmail,
                     }),
