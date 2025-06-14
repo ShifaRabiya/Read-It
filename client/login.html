@@ -159,7 +159,14 @@
             );
 
             setTimeout(() => {
-              window.location.href = "user-home.html"; // Update with your actual page
+              const verify =
+                localStorage.getItem("token") ||
+                sessionStorage.getItem("token");
+              if (verify) {
+                window.location.href = "user-home.html";
+              } else {
+                alert("Login succeeded but token not saved. Try again.");
+              }
             }, 1500);
           }
         } catch (err) {
