@@ -37,7 +37,7 @@ function authenticateToken(req, res, next) {
 }
 
 // Connect to MongoDB
-mongoose.connect('mongodb+srv://shifarabiya4216:4FQY802jzaUwoOfO@cluster0.cnfaduy.mongodb.net/readit-db?retryWrites=true&w=majority&appName=Cluster0')
+mongoose.connect(process.env.DB)
   .then(() => console.log('MongoDB connected'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
