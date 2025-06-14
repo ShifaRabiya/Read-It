@@ -241,8 +241,7 @@
 
             localStorage.setItem("user", JSON.stringify(user));
 
-            renderReadingList(); // now that readingList is set
-            // continue with previously viewed, recommendations, etc.
+            renderReadingList();
           })
           .catch((err) => {
             console.error("Failed to fetch user profile", err);
@@ -303,21 +302,22 @@
           let currentSearchResults = [];
           const section = document.getElementById(sectionId);
           section.innerHTML = books
-            .map(
-              (book) => `
-            <div class="book-card" data-id="${book.id}">
-                <img src="${book.thumbnail}" alt="${
-                book.title
-              }" class="book-cover" />
-                <h4>${book.title}</h4>
-                <p>${
-                  Array.isArray(book.author) ? book.author[0] : book.author
-                }</p>
-                <p>${book.genre}</p>
-                <button class="add-to-reading-list">Add to Read-List</button>
-            </div>
-            `
-            )
+            .map((book) => {
+              const isInReadingList = readingList.includes(book.id);
+              const buttonText = isInReadingList
+                ? "Remove from Read-List"
+                : "Add to Read-List";
+
+              return `
+        <div class="book-card" data-id="${book.id}">
+          <img src="${book.thumbnail}" alt="${book.title}" class="book-cover" />
+          <h4>${book.title}</h4>
+          <p>${Array.isArray(book.author) ? book.author[0] : book.author}</p>
+          <p>${book.genre}</p>
+          <button class="add-to-reading-list">${buttonText}</button>
+        </div>
+      `;
+            })
             .join("");
         }
 
@@ -385,10 +385,13 @@
             if (!readingList.includes(bookId)) {
               readingList.push(bookId);
               saveReadingList();
-              alert("Book added to your reading list!");
+              e.target.textContent = "Remove from Read-List";
             } else {
-              alert("Book is already in your reading list.");
+              readingList = readingList.filter((id) => id !== bookId);
+              saveReadingList();
+              e.target.textContent = "Add to Read-List";
             }
+
             return;
           }
 
@@ -522,7 +525,7 @@
           );
 
           const filtered = bookData.filter(Boolean);
-          renderBooks("readingListContainer", filtered); // ✅ Corrected ID
+          renderBooks("readingListContainer", filtered); // ✅ Always refresh reading list display
         }
       }); // end DOMContentLoaded
     </script>
