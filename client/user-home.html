@@ -95,6 +95,7 @@
         const BACKEND_URL = "https://read-it-0krk.onrender.com";
 
         let user;
+        let userId = null;
         let interests = [];
         let viewed = [];
         let readingList = [];
@@ -120,6 +121,7 @@
             }
 
             user = data;
+            userId = user.userId || user._id;
 
             document.getElementById(
               "welcomeMessage"
@@ -172,14 +174,14 @@
                 }
               });
 
-            const viewedKey = `viewed_${user.userId}`;
+            const viewedKey = `viewed_${userId}`;
             viewed = JSON.parse(localStorage.getItem(viewedKey) || "[]");
 
-            const interestKey = `interests_${user.userId}`;
+            const interestKey = `interests_${userId}`;
             interests = JSON.parse(localStorage.getItem(interestKey) || "[]");
 
             readingList = JSON.parse(
-              localStorage.getItem(`readingList_${user.userId}`) || "[]"
+              localStorage.getItem(`readingList_${userId}`) || "[]"
             );
 
             renderReadingList();
@@ -248,7 +250,7 @@
           });
 
         function recordView(id) {
-          const viewedKey = `viewed_${user.userId}`;
+          const viewedKey = `viewed_${userId}`;
           const index = viewed.indexOf(id);
           if (index !== -1) {
             viewed.splice(index, 1); // remove old
@@ -261,14 +263,14 @@
         //Reading List
         function saveReadingList() {
           localStorage.setItem(
-            `readingList_${user.userId}`,
+            `readingList_${userId}`,
             JSON.stringify(readingList)
           );
         }
 
         // Define Interests
         function saveInterests() {
-          const key = `interests_${user.userId}`;
+          const key = `interests_${userId}`;
           localStorage.setItem(key, JSON.stringify(interests));
         }
 
@@ -276,7 +278,7 @@
         document
           .getElementById("clearHistoryBtn")
           .addEventListener("click", () => {
-            const viewedKey = `viewed_${user.userId}`;
+            const viewedKey = `viewed_${userId}`;
             localStorage.removeItem(viewedKey);
             viewed = [];
             document.getElementById("previewed").innerHTML =
