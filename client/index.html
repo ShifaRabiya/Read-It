@@ -133,7 +133,7 @@
       const featuredWrapper = document.getElementById("featured-books-wrapper");
 
       fetch(
-        "https://www.googleapis.com/books/v1/volumes?q=bestsellers&maxResults=10&key=${API_KEY}",
+        `https://www.googleapis.com/books/v1/volumes?q=bestsellers&maxResults=10&key=${API_KEY}`,
       )
         .then((res) => res.json())
         .then((data) => {
