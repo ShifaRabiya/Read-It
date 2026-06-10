@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -91,6 +91,8 @@
       </section>
     </div>
     <script>
+      const API_KEY = "AIzaSyCcxMDB6lHLs_CSbRRFeJoFLc7z0czJy9E";
+
       document.addEventListener("DOMContentLoaded", () => {
         const BACKEND_URL = "https://read-it-0krk.onrender.com";
 
@@ -124,9 +126,8 @@
               user = data;
               userId = user.userId || user._id;
 
-              document.getElementById(
-                "welcomeMessage"
-              ).textContent = `Welcome ${user.name}!`;
+              document.getElementById("welcomeMessage").textContent =
+                `Welcome ${user.name}!`;
               document.getElementById("profileName").value = user.name;
               document.getElementById("profileEmail").value = user.email;
 
@@ -150,7 +151,7 @@
                           name: updatedName,
                           email: updatedEmail,
                         }),
-                      }
+                      },
                     );
 
                     const data = await res.json();
@@ -164,9 +165,8 @@
                         sessionStorage.setItem("user", JSON.stringify(user));
                       }
 
-                      document.getElementById(
-                        "welcomeMessage"
-                      ).textContent = `Welcome ${data.name}!`;
+                      document.getElementById("welcomeMessage").textContent =
+                        `Welcome ${data.name}!`;
 
                       alert("Profile updated successfully!");
                     } else {
@@ -185,7 +185,7 @@
               interests = JSON.parse(localStorage.getItem(interestKey) || "[]");
 
               readingList = JSON.parse(
-                localStorage.getItem(`readingList_${userId}`) || "[]"
+                localStorage.getItem(`readingList_${userId}`) || "[]",
               );
 
               renderReadingList();
@@ -195,7 +195,9 @@
                 const recentViewed = viewed.slice(0, 15);
                 Promise.all(
                   recentViewed.map((id) =>
-                    fetch(`https://www.googleapis.com/books/v1/volumes/${id}`)
+                    fetch(
+                      `https://www.googleapis.com/books/v1/volumes/${id}?key=${API_KEY}`,
+                    )
                       .then((res) => res.json())
                       .then((book) => ({
                         id: book.id,
@@ -207,8 +209,8 @@
                           book.volumeInfo.imageLinks?.thumbnail ||
                           "https://via.placeholder.com/128x192?text=No+Cover",
                       }))
-                      .catch(() => null)
-                  )
+                      .catch(() => null),
+                  ),
                 ).then((previewBooks) => {
                   const filtered = previewBooks.filter(Boolean);
                   renderBooks("previewed", filtered);
@@ -222,8 +224,8 @@
 
                 fetch(
                   `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
-                    interest
-                  )}&maxResults=6&orderBy=relevance`
+                    interest,
+                  )}&maxResults=6&orderBy=relevance&key=${API_KEY}`,
                 )
                   .then((res) => res.json())
                   .then((data) => {
@@ -236,11 +238,11 @@
                         author: item.volumeInfo.authors?.join(", ") || "",
                         genre: item.volumeInfo.categories?.join(", ") || "",
                         thumbnail: item.volumeInfo.imageLinks?.thumbnail || "",
-                      }))
+                      })),
                     );
                   })
                   .catch((err) =>
-                    console.error("Recommendation fetch failed", err)
+                    console.error("Recommendation fetch failed", err),
                   );
               }
 
@@ -268,7 +270,7 @@
           function saveReadingList() {
             localStorage.setItem(
               `readingList_${userId}`,
-              JSON.stringify(readingList)
+              JSON.stringify(readingList),
             );
           }
 
@@ -339,8 +341,8 @@
             try {
               const res = await fetch(
                 `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
-                  query
-                )}`
+                  query,
+                )}&key=${API_KEY}`,
               );
               const data = await res.json();
               spinner.style.display = "none";
@@ -415,7 +417,7 @@
 
             try {
               const res = await fetch(
-                `https://www.googleapis.com/books/v1/volumes/${bookId}`
+                `https://www.googleapis.com/books/v1/volumes/${bookId}?key=${API_KEY}`,
               );
               const book = await res.json();
 
@@ -447,8 +449,8 @@
               book.volumeInfo.ratingsCount || "N/A"
             }</p>
             <img src="${book.volumeInfo.imageLinks?.thumbnail || ""}" alt="${
-                book.volumeInfo.title
-              }" />
+              book.volumeInfo.title
+            }" />
             `;
 
               // 2️⃣ Update interests AFTER fetch
@@ -480,8 +482,8 @@
               if (recQuery) {
                 const recRes = await fetch(
                   `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
-                    recQuery
-                  )}&maxResults=5&orderBy=relevance`
+                    recQuery,
+                  )}&maxResults=5&orderBy=relevance&key=${API_KEY}`,
                 );
                 const recJson = await recRes.json();
                 const recItems = recJson.items || [];
@@ -495,7 +497,7 @@
                     thumbnail:
                       item.volumeInfo.imageLinks?.thumbnail ||
                       "https://via.placeholder.com/128x192?text=No+Cover",
-                  }))
+                  })),
                 );
               }
             } catch (err) {
@@ -520,7 +522,9 @@
           async function renderReadingList() {
             const bookData = await Promise.all(
               readingList.map((id) =>
-                fetch(`https://www.googleapis.com/books/v1/volumes/${id}`)
+                fetch(
+                  `https://www.googleapis.com/books/v1/volumes/${id}?key=${API_KEY}`,
+                )
                   .then((res) => res.json())
                   .then((book) => ({
                     id: book.id,
@@ -531,8 +535,8 @@
                       book.volumeInfo.imageLinks?.thumbnail ||
                       "https://via.placeholder.com/128x192?text=No+Cover",
                   }))
-                  .catch(() => null)
-              )
+                  .catch(() => null),
+              ),
             );
 
             const filtered = bookData.filter(Boolean);
